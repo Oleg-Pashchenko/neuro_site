@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}FAQ{% endblock %}
+{% block head %}
+    {{ block.super }}
+<meta charset="UTF-8">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+{% block content %}
+
+    <div class="container mt-5">
+        <h1>Статистика</h1>
+
+        <div class="row">
+            <div class="col-md-6">
+                <h2>Выберите параметры</h2>
+                <form>
+                    <div class="form-group">
+                        <label for="pipelineSelect">Выберите Pipeline:</label>
+                        <select class="form-control" id="pipelineSelect">
+                            <option> Общая </option>
+                            <option>Пайплайн 1</option>
+                            <option>Пайплайн 2</option>
+                            <option>Пайплайн 3</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="statsTypeSelect">Выберите тип статистики:</label>
+                        <select class="form-control" id="statsTypeSelect">
+                            <option>Количество обработанных сообщений</option>
+                            <option>Количество чатов</option>
+                            <option>Статистика трат и остатков на счете OPENAI</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Показать статистику</button>
+                </form>
+            </div>
+            <div class="col-md-6">
+                <h2>График статистики</h2>
+                <canvas id="statsChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Пример данных для графика (замените на реальные данные)
+        const chartData = {
+            labels: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн'],
+            datasets: [{
+                label: 'Обработанные сообщения',
+                data: [500, 700, 900, 1200, 1000, 1500],
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        };
+
+        const ctx = document.getElementById('statsChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar', // Измените тип графика по своему усмотрению
+            data: chartData,
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+{% endblock %}

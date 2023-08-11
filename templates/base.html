@@ -1,0 +1,144 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% block head %}
+        <meta name="csrf-token" content="{{ csrf_token }}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <style>
+        body {
+            background-color: black;
+            color: white;
+        }
+
+        .header {
+            background-color: black;
+            border-radius: 20px;
+            border: 1px solid white;
+            padding: 15px;
+            display: flex;
+            align-items: center; /* Чтобы иконки были выровнены по вертикали */
+        }
+
+        .header-item {
+            color: white;
+            padding: 0 30px;
+        }
+
+        .country-icons {
+            display: none; /* Начально скрываем блок с иконками стран */
+            position: absolute;
+            background-color: black;
+            border-radius: 10px;
+            border: 1px solid white;
+            padding: 10px;
+            top: 50px;
+            right: 0;
+        }
+
+        .country-icon {
+            color: white;
+            margin: 5px;
+            cursor: pointer;
+        }
+    </style>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const countryIcon = document.getElementById("country-icon");
+            const countryIcons = document.getElementById("country-icons");
+
+            countryIcon.addEventListener("click", function() {
+                countryIcons.style.display = countryIcons.style.display === "block" ? "none" : "block";
+            });
+
+            const countryIconsList = countryIcons.getElementsByClassName("country-icon");
+            for (const icon of countryIconsList) {
+                icon.addEventListener("click", function() {
+                    // Отправьте запрос на сервер с выбранной страной, например, через fetch или другой метод
+                    // Тут можно добавить код для обработки выбранной страны
+                    console.log("Выбрана страна: ", icon.getAttribute("data-country"));
+                    countryIcons.style.display = "none"; // Скрываем блок с иконками после выбора
+                });
+            }
+        });
+    </script>
+
+    <title>{% block title %}{% endblock %} - My Webpage</title>
+    {% endblock %}
+</head>
+<body>
+<div class="header m-5">
+    <div class="col-md-5">
+        <a href="/" class="header-item" style="font-weight: bold">A.Tech</a>
+        <a class="header-item">|</a>
+        <a href="/main" class="header-item">Главная</a>
+        <a href="/payment" class="header-item">Оплата </a>
+    </div>
+    <div class="col-md-2">
+
+    </div>
+    <div class="col-md-5">
+        <a href="/stats" class="header-item"> Статистика </a>
+        <a href="/settings" class="header-item">Настройки </a>
+        <a href="/faq" class="header-item">FAQ</a>
+        <a class='header-item'><!-- Иконка страны, при нажатии будет отображаться список иконок стран -->
+    <a id="country-icon" class="header-item">
+    <img class="country-icon" data-logo="{% static 'icons/'|add:lang|add:'.png' %}" src="{% static 'icons/'|add:lang|add:'.png' %}" alt="{{ lang }}" width="20" height="20">
+</a>
+
+
+            <div id="country-icons" class="country-icons">
+             <img class="country-icon" data-logo="{% static 'icons/russian.png' %}" src="{% static 'icons/russian.png' %}" data-country="Russian" alt="Russian" width="25" height="25">
+            <img class="country-icon" data-logo="{% static 'icons/english.png' %}" src="{% static 'icons/english.png' %}" data-country="English" alt="English" width="25" height="25">
+            <img class="country-icon" data-logo="{% static 'icons/spain.png' %}" src="{% static 'icons/spain.png' %}" data-country="Spain" alt="Spain" width="25" height="25">
+            <img class="country-icon" data-logo="{% static 'icons/portugal.png' %}" src="{% static 'icons/portugal.png' %}" data-country="Portugal" alt="Portugal" width="25" height="25">
+            <!-- Добавьте другие иконки стран здесь -->
+        </div></a>
+    </div>
+</div>
+<div id="content">{% block content %}{% endblock %}</div>
+<div class="d-flex justify-content-center align-items-center" style="height: 20vh;">
+    <p style="color: grey">All rights reserved by Oleg Pashchenko</p>
+</div>
+</body>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+    const countryIcons = document.getElementById("country-icons");
+
+
+    const countryIconsList = countryIcons.getElementsByClassName("country-icon");
+    for (const icon of countryIconsList) {
+        icon.addEventListener("click", async function() {
+            const selectedCountry = icon.getAttribute("data-country");
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            // Отправляем POST-запрос на сервер
+            try {
+                const response = await fetch('/api/v1/change-lang', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: JSON.stringify({ country: selectedCountry })
+                });
+
+                if (response.ok) {
+                    console.log("Выбрана страна: ", selectedCountry);
+                    countryIcons.style.display = "none"; // Скрываем блок с иконками после выбора
+                    // Перезагружаем страницу
+                    location.reload();
+                } else {
+                    console.error('Ошибка при отправке запроса на сервер');
+                }
+            } catch (error) {
+                console.error('Ошибка при отправке запроса:', error);
+            }
+        });
+    }
+});
+</script>
+</html>

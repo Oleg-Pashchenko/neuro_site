@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+{% block title %}Preview page{% endblock %}
+{% block head %}
+    {{ block.super }}
+    <style>
+        .gradient-text_cyan {
+            font-size: 6vw;
+            background: linear-gradient(90deg, white, cyan);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+
+        .gradient-text_purple {
+            font-size: 6vw;
+            background: linear-gradient(90deg, cornflowerblue, mediumpurple);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+
+        .button {
+            background-color: black;
+            color: white;
+            border-radius: 20px;
+            border: 1px solid white;
+            padding: 12px;
+            margin: 5px;
+            width: 150px;
+        }
+    </style>
+    <style>
+
+
+        .container {
+            margin-top: 5em;
+            width: 10em;
+            height: 10em;
+            border: 2px white;
+            transform-style: preserve-3d;
+            animation: rotate 7s infinite linear;
+        }
+
+        .side {
+            position: absolute;
+            width: 10em;
+            height: 10em;
+            border: 1px solid white;
+            opacity: 0.7;
+        }
+
+        .back {
+            transform: translateZ(-5em);
+            background: black;
+        }
+
+        .left {
+            transform: translateX(-5em) rotateY(90deg);
+            background: black;
+        }
+
+        .right {
+            transform: translateX(5em) rotateY(90deg);
+            background: black;
+        }
+
+        .top {
+            transform: translateY(-5em) rotateX(90deg);
+            background: black;
+        }
+
+        .bottom {
+            transform: translateY(5em) rotateX(90deg);
+            background: black;
+        }
+
+        .front {
+            transform: translateZ(5em);
+            background: black;
+        }
+
+        @keyframes rotate {
+            100% {
+                transform: rotateX(360deg) rotateY(360deg) rotateZ(360deg);
+            }
+        }
+
+
+        /* Additional CSS to arrange 16 cells in a 4x4 grid on each side */
+        .side {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+        }
+
+        .cell {
+            background: black;
+            border: 1px solid white;
+        }
+
+    </style>
+{% endblock %}
+
+
+<!-- Ваш контент здесь -->
+{% block content %}
+
+
+    <div class="container">
+
+        <div class="back side">
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+        </div>
+        <div class="left side">
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+        </div>
+        <div class="right side">
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+        </div>
+        <div class="top side">
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+        </div>
+        <div class="bottom side">
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+        </div>
+        <div class="front side">
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+        </div>
+    </div>
+
+
+
+    <!-- Остальной контент -->
+
+    <div class="d-flex justify-content-center align-items-center" style="height: 50vh;">
+        <div class="text-center">
+            <h1>
+                <div class="gradient-text_cyan">AMOCHAT</div>
+                <div class="gradient-text_purple">Technologies</div>
+            </h1>
+            <p style="font-size:2vw;">Automate your applications using innovative technologies.</p>
+            <button class="button">Create</button>
+            <button class="button">SHOP ALL</button>
+            <button class="button">RENT</button>
+        </div>
+    </div>
+
+{% endblock %}

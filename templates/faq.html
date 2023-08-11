@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}FAQ{% endblock %}
+{% block head %}
+    {{ block.super }}
+{% endblock %}
+{% block content %}
+    <div class="container mt-5">
+        <h1>Часто задаваемые вопросы (FAQ)</h1>
+
+        <div class="accordion" id="faqAccordion">
+            <div class="card">
+                <div class="card-header" id="question1">
+                    <h2 class="mb-0">
+                        <button style="background-color: black" class="btn btn-link" type="button" data-toggle="collapse" data-target="#answer1" aria-expanded="true" aria-controls="answer1">
+                            Вопрос 1: Как использовать наш сервис?
+                        </button>
+                    </h2>
+                </div>
+
+                <div id="answer1" class="collapse" aria-labelledby="question1" data-parent="#faqAccordion" style="background-color: black">
+                    <div class="card-body">
+                        Ответ на вопрос 1: Чтобы использовать наш сервис, вам нужно...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Добавьте другие вопросы и ответы аналогичным образом -->
+
+        </div>
+
+        <h2 class="mt-5">Задать вопрос</h2>
+        <form action="submit_question.php" method="POST">
+            <div class="form-group">
+                <label for="email">Ваш email:</label>
+                <input type="email" name="email" id="email" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="question">Ваш вопрос:</label>
+                <textarea name="question" id="question" class="form-control" rows="3" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Отправить вопрос</button>
+        </form>
+
+        <p class="mt-4">Если у вас возникли дополнительные вопросы, вы также можете написать нам в <a href="https://t.me/your_telegram_channel">Telegram</a>.</p>
+    </div>
+
+    <!-- Подключение Bootstrap JS и jQuery (необходим для некоторых компонентов Bootstrap) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+{% endblock %}

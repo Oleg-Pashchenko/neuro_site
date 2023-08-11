@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}FAQ{% endblock %}
+{% block head %}
+    {{ block.super }}
+{% endblock %}
+{% block content %}
+    <div class="container mt-5">
+        <h1>Срок подписки и тип</h1>
+        <p>Срок подписки: 30 дней</p>
+        <p>Тип подписки: Профессиональная</p>
+
+        <button id="extendSubscription" class="btn btn-primary mb-5">Продлить подписку</button>
+
+        <div id="paymentWidget" style="display: none;">
+            <h2>Выберите способ оплаты и период</h2>
+            <form action="submit_payment.php" method="POST">
+                <div class="form-group">
+                    <label for="paymentMethod">Способ оплаты:</label>
+                    <select name="paymentMethod" id="paymentMethod" class="form-control">
+                        <option value="stripe">Stripe</option>
+                        <option value="cryptomus">Cryptomus</option>
+                        <option value="yookassa">YooKassa</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="subscriptionPeriod">Период подписки:</label>
+                    <select name="subscriptionPeriod" id="subscriptionPeriod" class="form-control">
+                        <option value="1">1 месяц</option>
+                        <option value="3">3 месяца</option>
+                        <option value="6">6 месяцев</option>
+                        <option value="12">12 месяцев</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-success">Оплатить</button>
+            </form>
+        </div>
+
+        <h2 class="mt-5">История транзакций</h2>
+        <table class="table" style="color: white">
+            <thead>
+                <tr>
+                    <th>Транзакция</th>
+                    <th>Сумма</th>
+                    <th>Период</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Транзакция 1</td>
+                    <td>$50</td>
+                    <td>1 месяц</td>
+                </tr>
+                <tr>
+                    <td>Транзакция 2</td>
+                    <td>$120</td>
+                    <td>3 месяца</td>
+                </tr>
+                <tr>
+                    <td>Транзакция 3</td>
+                    <td>$200</td>
+                    <td>6 месяцев</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Подключение Bootstrap JS и jQuery (необходим для некоторых компонентов Bootstrap) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        const extendButton = document.getElementById('extendSubscription');
+        const paymentWidget = document.getElementById('paymentWidget');
+
+        extendButton.addEventListener('click', () => {
+            paymentWidget.style.display = 'block';
+        });
+    </script>
+{% endblock %}
