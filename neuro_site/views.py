@@ -16,7 +16,7 @@ def faq(request):
 
 
 @login_required()
-def home(request):
+def main(request):
     return render(request, "main.html")
 
 
