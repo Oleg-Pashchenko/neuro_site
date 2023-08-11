@@ -11,7 +11,7 @@ def register(request):
             # Автоматический вход после регистрации
             user = authenticate(username=form.cleaned_data['username'], password=form.cleaned_data['password1'])
             login(request, user)
-            return redirect('main')  # Замените 'home' на имя вашей домашней страницы
+            return redirect('home')  # Замените 'home' на имя вашей домашней страницы
     else:
         form = CustomUserCreationForm()
     return render(request, 'registration/register.html', {'form': form})
