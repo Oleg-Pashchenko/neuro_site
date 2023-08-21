@@ -7,6 +7,7 @@ def change_lang(request):
         print(request.POST.dict())
         return render(request, 'index.html')
 
+
 def index(request):
     return render(request, 'index.html')
 
