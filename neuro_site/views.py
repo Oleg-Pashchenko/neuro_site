@@ -3,6 +3,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 
 from neuro_site.amo_auth import update_pipelines, get_text_by_pipeline, set_text_by_pipeline, get_pipelines
+from neuro_site.db_conn import get_token
 
 
 def change_lang(request):
@@ -54,8 +55,16 @@ def payment(request):
 #@login_required()
 def settings(request):
     update_pipelines()
+    api_token = get_token()
     pipelines = get_pipelines()
-    return render(request, 'settings.html', {'pipelines': pipelines})
+    return render(request, 'settings.html', {
+        'pipelines': pipelines,
+        'api_token': api_token
+    })
+
+
+def save_token(request):
+    pass
 
 
 @login_required()
