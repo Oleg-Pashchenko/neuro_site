@@ -1,10 +1,106 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+{% block head %}
+    {{ block.super }}
+{% endblock %}
 
-</body>
-</html>
+{% block content %}
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Аккаунт: olegpash</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+        <style>
+            body {
+                background-color: black;;
+            }
+
+            .pipeline-bar {
+                display: flex;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+
+            .pipeline-item {
+                flex: 0 0 auto;
+                margin-right: 10px;
+            }
+
+            .selected-pipeline {
+                background-color: #007bff;
+                color: #fff;
+            }
+        </style>
+    </head>
+    <body>
+
+    <div class="container mt-5">
+        <h1 style="color: white">Аккаунт: olegpash</h1>
+        <div class="row mt-5">
+            <div class="col">
+                <div class="pipeline-bar">
+                    {% for pipeline in pipelines %}
+                        <div class="pipeline-item">
+                            <a class="btn btn-outline-secondary pipeline" href="#"
+                               data-pipeline="pipeline{{ pipeline }}">Pipeline {{ pipeline }}</a>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col">
+                <div class="pipeline-text">
+                    <textarea class="form-control" rows="5" id="textArea"></textarea>
+                </div>
+            </div>
+        </div>
+    <br/>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="basic-addon1">Max tokens in response:</span>
+            </div>
+            <input type="text" class="form-control" placeholder="" aria-label="Username"
+                   aria-describedby="basic-addon1">
+        </div>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="basic-addon1">Temperature:</span>
+            </div>
+            <input type="text" class="form-control" placeholder="" aria-label="Username"
+                   aria-describedby="basic-addon1">
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const pipelineLinks = document.querySelectorAll('.pipeline');
+        const textarea = document.getElementById('textArea');
+        var prevId = "zero";
+        pipelineLinks.forEach(link => {
+            link.addEventListener('click', async function (event) {
+                event.preventDefault();
+                const pipelineId = link.getAttribute('data-pipeline');
+                let pipelineTextElement = document.querySelector('.pipeline-text'); // Обновленная ссылка
+                if (prevId !== "zero") {
+                    const selectedPipeline = document.querySelector('.selected-pipeline');
+
+                    const response1 = await fetch(`/api/v1/settings/set-text?pipeline=${selectedPipeline.getAttribute('data-pipeline')}&text=${pipelineTextElement.querySelector('textarea').value}`); // Используйте value для получения текста
+                }
+                prevId = "new";
+
+                const response = await fetch(`/api/v1/settings/get-text?pipeline=${pipelineId}`); // Измените URL на ваш
+                const jsonResponse = await response.json();
+                const pipelineText = jsonResponse.text;
+                pipelineTextElement.innerHTML = `<textarea class="form-control" rows="5" id="textArea">${pipelineText}</textarea>`;
+                pipelineLinks.forEach(pipelineLink => {
+                    pipelineLink.classList.remove('selected-pipeline');
+                });
+                link.classList.add('selected-pipeline');
+            });
+        });
+
+    </script>
+
+    </body>
+{% endblock %}

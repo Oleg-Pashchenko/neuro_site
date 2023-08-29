@@ -22,6 +22,8 @@ from . import views
 urlpatterns = [
     path('', views.index, name=''),
     path('api/v1/change-lang', views.change_lang, name='change_lang'),
+    path('api/v1/settings/get-text', views.get_text, name='get_text'),
+    path('api/v1/settings/set-text', views.set_text, name='set_text'),
     path('faq/', views.faq, name='faq'),
     path('home/', views.home, name='home'),
     path('admin/', views.admin, name='admin'),
