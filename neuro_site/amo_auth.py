@@ -144,13 +144,13 @@ def get_text_by_pipeline(pipeline):
         password=os.getenv('DB_PASSWORD')
     )
     cur = conn.cursor()
-    cur.execute("SELECT text FROM pipelines WHERE pipeline_id=%s", (pipeline,))
+    cur.execute("SELECT * FROM pipelines WHERE pipeline_id=%s", (pipeline,))
     text = cur.fetchone()
     conn.close()
     return text
 
 
-def set_text_by_pipeline(pipeline, text):
+def set_text_by_pipeline(pipeline, text, tokens, temperature, vm, model, ftmodel):
     conn = psycopg2.connect(
         host=os.getenv('DB_HOST'),
         database=os.getenv('DB_NAME'),
@@ -158,6 +158,7 @@ def set_text_by_pipeline(pipeline, text):
         password=os.getenv('DB_PASSWORD')
     )
     cur = conn.cursor()
-    cur.execute("UPDATE pipelines SET text=%s WHERE pipeline_id=%s;", (text, pipeline,))
+    cur.execute("UPDATE pipelines SET text=%s, model=%s, ftmodel=%s, tokens=%s, temperature=%s, voice=%s WHERE pipeline_id=%s;",
+                (text, model, ftmodel, int(tokens), int(temperature), int(vm=='active'), pipeline))
     conn.commit()
     conn.close()

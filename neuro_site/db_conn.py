@@ -1,5 +1,2 @@
-
-
-
 def get_token():
-    pass
+    return "default"
