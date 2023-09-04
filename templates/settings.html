@@ -31,16 +31,50 @@
                 color: #fff;
             }
         </style>
+        <style>
+            /* Стили для контейнера виджета */
+            .widget-container {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                background-color: grey; /* Цвет полосы */
+                color: white;
+                text-align: center;
+                transform: translateY(100%);
+                transition: transform 0.3s ease-in-out;
+                border-top-left-radius: 50px; /* Полукруглые края слева */
+                border-top-right-radius: 50px; /* Полукруглые края справа */
+            }
+
+            /* Стили для содержимого виджета */
+            .widget-content {
+                padding: 10px;
+            }
+
+            /* Стили для кнопки */
+            #save-button {
+                background-color: midnightblue; /* Цвет кнопки */
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                cursor: pointer;
+            }
+
+            #save-button:hover {
+                background-color: #004a9a; /* Цвет кнопки при наведении */
+            }
+        </style>
     </head>
     <body>
 
     <div class="container mt-5">
         <h1 style="color: white">Аккаунт: olegpash</h1>
-    <div class="input-group mb-3">
+        <div class="input-group mb-3">
             <div class="input-group-prepend">
                 <span class="input-group-text" id="basic-addon1">OpenAI Token:</span>
             </div>
-            <input type="text" class="form-control" placeholder="" aria-label="Username"
+            <input type="text" id="openai-token" class="form-control" placeholder="" aria-label="Username"
                    aria-describedby="basic-addon1">
         </div>
         <div class="row mt-5">
@@ -49,7 +83,7 @@
                     {% for pipeline in pipelines %}
                         <div class="pipeline-item">
                             <a class="btn btn-outline-secondary pipeline" href="#"
-                               data-pipeline="pipeline{{ pipeline }}">Pipeline {{ pipeline }}</a>
+                               data-pipeline="{{ pipeline }}"> {{ pipeline }}</a>
                         </div>
                     {% endfor %}
                 </div>
@@ -57,12 +91,12 @@
         </div>
         <div class="row mt-3">
             <div class="col">
-                <div class="pipeline-text">
+                <div class="pipeline-text" id="change-text">
                     <textarea class="form-control" rows="5" id="textArea"></textarea>
                 </div>
             </div>
         </div>
-    <br/>
+        <br/>
         <div class="input-group mb-3">
             <div class="input-group-prepend">
                 <span class="input-group-text" id="basic-addon1">Max tokens in response:</span>
@@ -77,57 +111,70 @@
             <div class="input-group-prepend">
                 <span class="input-group-text" id="basic-addon1">Voice messages detection</span>
             </div>
-              <button class="btn btn-primary dropdown-toggle" type="button" id="chooseModeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-    choose mode
-  </button>
-  <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-    <li><a class="dropdown-item" href="#">active</a></li>
-    <li><a class="dropdown-item" href="#">inactive</a></li>
-  </ul>
+            <button class="btn btn-primary dropdown-toggle" type="button" id="chooseModeDropdown"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                choose mode
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <li><a class="dropdown-item" href="#">active</a></li>
+                <li><a class="dropdown-item" href="#">inactive</a></li>
+            </ul>
         </div>
-    <div class="input-group mb-3">
-  <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-    Выберите модель
-  </button>
-  <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-    <li><a class="dropdown-item" href="#">gpt-3.5-turbo</a></li>
-    <li><a class="dropdown-item" href="#">gpt-3.5-turbo-16k</a></li>
-  </ul>
+        <div class="input-group mb-3">
+            <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                Выберите модель
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <li><a class="dropdown-item" href="#">gpt-3.5-turbo</a></li>
+                <li><a class="dropdown-item" href="#">gpt-3.5-turbo-16k</a></li>
+            </ul>
             <div class="input-group-prepend ml-2">
                 <span class="input-group-text" id="basic-addon1">Fine Tuned Model ID:</span>
             </div>
             <input type="text" class="form-control" placeholder="" aria-label="Username"
                    aria-describedby="basic-addon1" id="ftmodel">
 
-</div>
+        </div>
     </div>
-<script>
-    // Обработчик для выбора модели
-    const modelItems = document.querySelectorAll('#dropdownMenuButton + .dropdown-menu .dropdown-item');
-    const selectedModelElement = document.getElementById('dropdownMenuButton');
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="widget-container bg-primary text-white rounded p-2">
+                    <p class="d-inline-block m-0">После внесения изменений нажмите на кнопку.</p>
+                    <button id="save-button" class="btn btn-light ml-2">Сохранить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Обработчик для выбора модели
+        const modelItems = document.querySelectorAll('#dropdownMenuButton + .dropdown-menu .dropdown-item');
+        const selectedModelElement = document.getElementById('dropdownMenuButton');
 
-    modelItems.forEach(item => {
-        item.addEventListener('click', function(event) {
-            event.preventDefault();
-            const selectedModel = item.textContent;
-            selectedModelElement.textContent = `${selectedModel}`;
+        modelItems.forEach(item => {
+            item.addEventListener('click', function (event) {
+                event.preventDefault();
+                const selectedModel = item.textContent;
+                selectedModelElement.textContent = `${selectedModel}`;
+            });
         });
-    });
 
-    // Обработчик для выбора режима
-    const modeItems = document.querySelectorAll('#chooseModeDropdown + .dropdown-menu .dropdown-item');
-    const selectedModeElement = document.getElementById('chooseModeDropdown');
+        // Обработчик для выбора режима
+        const modeItems = document.querySelectorAll('#chooseModeDropdown + .dropdown-menu .dropdown-item');
+        const selectedModeElement = document.getElementById('chooseModeDropdown');
 
-    modeItems.forEach(item => {
-        item.addEventListener('click', function(event) {
-            event.preventDefault();
-            const selectedMode = item.textContent;
-            selectedModeElement.textContent = `${selectedMode}`;
+        modeItems.forEach(item => {
+            item.addEventListener('click', function (event) {
+                event.preventDefault();
+                const selectedMode = item.textContent;
+                selectedModeElement.textContent = `${selectedMode}`;
+            });
         });
-    });
-</script>
+    </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
         const pipelineLinks = document.querySelectorAll('.pipeline');
         const textarea = document.getElementById('textArea');
@@ -138,39 +185,97 @@
         const chooseModeDropdown = document.getElementById('chooseModeDropdown');
         const ddElement = document.getElementById('dropdownMenuButton');
         const cmElement = document.getElementById('chooseModeDropdown');
+        const saveButton = document.getElementById('save-button');
 
-        var prevId = "zero";
-        pipelineLinks.forEach(link => {
-            link.addEventListener('click', async function (event) {
-                event.preventDefault();
-                const pipelineId = link.getAttribute('data-pipeline');
-                let pipelineTextElement = document.querySelector('.pipeline-text'); // Обновленная ссылка
-                if (prevId !== "zero") {
-                    const selectedPipeline = document.querySelector('.selected-pipeline');
 
-                    const response1 = await fetch(`/api/v1/settings/set-text?pipeline=
-                    ${selectedPipeline.getAttribute('data-pipeline')}&text=${pipelineTextElement.querySelector('textarea').value}
-                    &tokens=${tokens.value}&temperature=${temperature.value}&vm=${chooseModeDropdown.textContent}&model=${model.textContent}&ftmodel=${ftmodel.value}`); // Используйте value для получения текста
-                }
-                prevId = "new";
+        function showWidget() {
+            const widgetContainer = document.querySelector('.widget-container');
+            widgetContainer.style.transform = 'translateY(-60px)'; /* Всплывает немного вверх */
+        }
 
-                const response = await fetch(`/api/v1/settings/get-text?pipeline=${pipelineId}`); // Измените URL на ваш
-                const jsonResponse = await response.json();
-                const pipelineText = jsonResponse.text;
-                temperature.value = jsonResponse.temperature;
-                tokens.value = jsonResponse.tokens;
-                ftmodel.value = jsonResponse.fmodel;
-                ddElement.textContent = jsonResponse.model;
-                cmElement.textContent = jsonResponse.voice;
-                pipelineTextElement.innerHTML = `<textarea class="form-control" rows="5" id="textArea">${pipelineText}</textarea>`;
-                pipelineLinks.forEach(pipelineLink => {
-                    pipelineLink.classList.remove('selected-pipeline');
+
+        function showData(link) {
+            const pipelineId = link.getAttribute('data-pipeline');
+            let pipelineTextElement = document.querySelector('.pipeline-text')
+            const response = fetch(`/api/v1/settings/get-text?pipeline=${pipelineId}`)
+                .then(function (response) {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error('Ошибка в ответе сервера: ' + response.status);
+                    }
+                })
+                .then(function (jsonResponse) {
+                    const pipelineText = jsonResponse.text;
+                    temperature.value = jsonResponse.temperature;
+                    tokens.value = jsonResponse.tokens;
+                    document.getElementById('openai-token').value = jsonResponse.openai
+                    ftmodel.value = jsonResponse.fmodel;
+                    ddElement.textContent = jsonResponse.model;
+                    cmElement.textContent = jsonResponse.voice;
+                    pipelineTextElement.innerHTML = `<textarea class="form-control" rows="5" id="textArea">${pipelineText}</textarea>`;
+                    pipelineLinks.forEach(pipelineLink => {
+                        pipelineLink.classList.remove('selected-pipeline');
+                    });
+                    link.classList.add('selected-pipeline');
+                })
+                .catch(function (error) {
+                    console.error('Произошла ошибка:', error);
                 });
-                link.classList.add('selected-pipeline');
+        }
+
+
+        function hideWidget() {
+            const widgetContainer = document.querySelector('.widget-container');
+            widgetContainer.style.transform = 'translateY(100%)';
+        }
+
+
+        function saveData() {
+            let pipelineTextElement = document.querySelector('.pipeline-text'); // Обновленная ссылка
+            const selectedPipeline = document.querySelector('.selected-pipeline');
+            const response1 = fetch(`/api/v1/settings/set-text?pipeline=
+                    ${selectedPipeline.getAttribute('data-pipeline')}&text=${pipelineTextElement.querySelector('textarea').value}
+                    &tokens=${tokens.value}&temperature=${temperature.value}&vm=${chooseModeDropdown.textContent}&model=${model.textContent}&ftmodel=${ftmodel.value}&openai-token=${document.getElementById('openai-token').value}`); // Используйте value для получения текста
+        }
+
+
+        saveButton.addEventListener('click', function () {
+            hideWidget();
+            saveData();
+        });
+
+        showData(pipelineLinks[0]);
+        pipelineLinks.forEach(link => {
+            link.addEventListener('click', function () {
+                showData(link);
+            });
+        });
+        const inputElements = [
+                document.getElementById('textArea'),
+                document.getElementById('ftmodel'),
+                document.getElementById('tokens'),
+                document.getElementById('openai-token'),
+                document.getElementById('temperature'),
+
+            ]
+        ;
+        const inputElements2 = [
+            document.getElementById('change-text'),
+            document.getElementById('dropdownMenuButton'),
+            document.getElementById('chooseModeDropdown')
+        ]
+        inputElements.forEach(element => {
+            element.addEventListener('input', function () {
+                showWidget();
             });
         });
 
+        inputElements2.forEach(element => {
+            element.addEventListener('click', function () {
+                showWidget();
+            });
+        });
     </script>
-
     </body>
 {% endblock %}

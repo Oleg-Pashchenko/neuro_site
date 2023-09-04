@@ -49,32 +49,30 @@ def get_token():
         time.sleep(3)
         return get_token()
     print('Amo Token:', token)
-    return token, session
+    return token, session, headers
 
 
 def update_pipelines():
-    token, session = get_token()
-    response = session.get('https://appgpt.amocrm.ru/leads/pipeline/').text
-    response = response.split('"pipeline_id":')[1::]
+    token, session, headers = get_token()
+    response = session.get('https://appgpt.amocrm.ru/ajax/v1/pipelines/list', headers=headers).json()['response'][
+        'pipelines']
     pipelines = set()
-    for r in response:
-        try:
-            pipelines.add(int(r.split(',')[0]))
-        except:
-            pass
-    pipelines_from_db = get_db_pipelines()
+
+    for r in response.keys():
+        pipelines.add(int(r))
+
+    pipelines_from_db = get_db_pipelines_id()
     to_delete = []
     to_add = []
     for p in pipelines:
         if p not in pipelines_from_db:
-            to_add.append(p)
+            to_add.append([p, response[str(p)]['name'], response[str(p)]['sort']])
     for p in pipelines_from_db:
         if p not in pipelines:
             to_delete.append(p)
     add_pipelines(to_add)
     delete_pipelines(to_delete)
     return pipelines
-
 
 def get_pipelines():
     conn = psycopg2.connect(
@@ -84,14 +82,17 @@ def get_pipelines():
         password=os.getenv('DB_PASSWORD')
     )
     cur = conn.cursor()
-    cur.execute("SELECT pipeline_id FROM pipelines;")
+    cur.execute("SELECT name FROM pipelines ORDER BY number;")
+    resp = []
+
     text = cur.fetchall()
+    for i in text:
+        resp.append(i[0])
     conn.close()
-    return text
+    return resp
 
 
-
-def get_db_pipelines():
+def get_db_pipelines_id():
     conn = psycopg2.connect(
         host=os.getenv('DB_HOST'),
         database=os.getenv('DB_NAME'),
@@ -99,7 +100,7 @@ def get_db_pipelines():
         password=os.getenv('DB_PASSWORD')
     )
     cur = conn.cursor()
-    cur.execute('SELECT * FROM pipelines;', )
+    cur.execute('SELECT pipeline_id FROM pipelines;', )
     records = cur.fetchall()
     resp = []
     for r in records:
@@ -116,8 +117,8 @@ def add_pipelines(ids):
         password=os.getenv('DB_PASSWORD')
     )
     cur = conn.cursor()
-    for id in ids:
-        cur.execute('INSERT INTO pipelines (pipeline_id, text) VALUES (%s, %s);', (id, ''))
+    for el in ids:
+        cur.execute('INSERT INTO pipelines (pipeline_id, name, text, number) VALUES (%s, %s, %s, %s);', (el[0], el[1], '', el[2]))
         conn.commit()
     conn.close()
 
@@ -144,7 +145,7 @@ def get_text_by_pipeline(pipeline):
         password=os.getenv('DB_PASSWORD')
     )
     cur = conn.cursor()
-    cur.execute("SELECT * FROM pipelines WHERE pipeline_id=%s", (pipeline,))
+    cur.execute("SELECT * FROM pipelines WHERE name=%s", (pipeline,))
     text = cur.fetchone()
     conn.close()
     return text
@@ -158,7 +159,14 @@ def set_text_by_pipeline(pipeline, text, tokens, temperature, vm, model, ftmodel
         password=os.getenv('DB_PASSWORD')
     )
     cur = conn.cursor()
-    cur.execute("UPDATE pipelines SET text=%s, model=%s, ftmodel=%s, tokens=%s, temperature=%s, voice=%s WHERE pipeline_id=%s;",
-                (text, model, ftmodel, int(tokens), int(temperature), int(vm=='active'), pipeline))
+    if tokens == '':
+        tokens = 0
+
+    if temperature == '':
+        temperature = 1
+
+    cur.execute(
+        "UPDATE pipelines SET text=%s, model=%s, ftmodel=%s, tokens=%s, temperature=%s, voice=%s WHERE name=%s;",
+        (text, model, ftmodel, int(tokens), int(temperature), int(vm == 'active'), pipeline.strip(),))
     conn.commit()
     conn.close()
