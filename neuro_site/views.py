@@ -82,7 +82,9 @@ def home(request):
 
 @login_required()
 def manually_register(request):
-    return render(request, 'manually_register.html')
+    return render(request, 'manually_register.html',{
+        'username': str(request.user)
+    })
 
 
 @login_required()
@@ -100,7 +102,8 @@ def settings(request):
     update_pipelines(str(request.user))
     pipelines = get_pipelines(str(request.user))
     return render(request, 'settings.html', {
-        'pipelines': pipelines
+        'pipelines': pipelines,
+        'username': str(request.user)
     })
 
 
