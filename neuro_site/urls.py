@@ -26,9 +26,11 @@ urlpatterns = [
     path('api/v1/settings/set-text', views.set_text, name='set_text'),
     path('faq/', views.faq, name='faq'),
     path('home/', views.home, name='home'),
+    path('manually-register/', views.manually_register, name='manually_register'),
     path('admin/', views.admin, name='admin'),
     path('payment/', views.payment, name='payment'),
     path('settings/', views.settings, name='settings'),
     path('stats/', views.stats, name='stats'),
+    path('manual_amo_create/', views.manual_amo_create, name='manual_amo_create'),
     path('', include('session_auth_app.urls'))
 ]

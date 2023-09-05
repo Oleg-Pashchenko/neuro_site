@@ -7,11 +7,25 @@ import dotenv
 dotenv.load_dotenv()
 
 
-def get_token():
-    mail = 'odpash.itmo@gmail.com'
-    host = 'https://appgpt.amocrm.ru/'
-    host2 = 'appgpt.amocrm.ru'
-    password = "developer2023"
+def get_token(owner):
+    conn = psycopg2.connect(
+        host=os.getenv('DB_HOST'),
+        database=os.getenv('DB_NAME'),
+        user=os.getenv('DB_USER'),
+        password=os.getenv('DB_PASSWORD')
+    )
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM request_settings WHERE owner_name=%s;", (owner,))
+    info = cur.fetchone()
+    conn.close()
+    mail = info[3]
+    host = info[2]
+    host2 = host.replace('https://', '').replace('/', '')
+    password = info[4]
+    # mail = 'odpash.itmo@gmail.com'
+    # host = 'https://appgpt.amocrm.ru/'
+    # host2 = 'appgpt.amocrm.ru'
+    # password = "developer2023"
     try:
         session = requests.Session()
         response = session.get(host)
@@ -47,13 +61,13 @@ def get_token():
     except Exception as e:
         print(e)
         time.sleep(3)
-        return get_token()
+        return get_token(owner)
     print('Amo Token:', token)
     return token, session, headers
 
 
-def update_pipelines():
-    token, session, headers = get_token()
+def update_pipelines(user):
+    token, session, headers = get_token(user)
     response = session.get('https://appgpt.amocrm.ru/ajax/v1/pipelines/list', headers=headers).json()['response'][
         'pipelines']
     pipelines = set()
@@ -61,7 +75,7 @@ def update_pipelines():
     for r in response.keys():
         pipelines.add(int(r))
 
-    pipelines_from_db = get_db_pipelines_id()
+    pipelines_from_db = get_db_pipelines_id(user)
     to_delete = []
     to_add = []
     for p in pipelines:
@@ -70,11 +84,12 @@ def update_pipelines():
     for p in pipelines_from_db:
         if p not in pipelines:
             to_delete.append(p)
-    add_pipelines(to_add)
+    add_pipelines(to_add, user)
     delete_pipelines(to_delete)
     return pipelines
 
-def get_pipelines():
+
+def get_pipelines(user):
     conn = psycopg2.connect(
         host=os.getenv('DB_HOST'),
         database=os.getenv('DB_NAME'),
@@ -82,9 +97,8 @@ def get_pipelines():
         password=os.getenv('DB_PASSWORD')
     )
     cur = conn.cursor()
-    cur.execute("SELECT name FROM pipelines ORDER BY number;")
+    cur.execute("SELECT name FROM pipelines WHERE owner_name = %s ORDER BY number;", (user,))
     resp = []
-
     text = cur.fetchall()
     for i in text:
         resp.append(i[0])
@@ -92,7 +106,7 @@ def get_pipelines():
     return resp
 
 
-def get_db_pipelines_id():
+def get_db_pipelines_id(user):
     conn = psycopg2.connect(
         host=os.getenv('DB_HOST'),
         database=os.getenv('DB_NAME'),
@@ -100,7 +114,7 @@ def get_db_pipelines_id():
         password=os.getenv('DB_PASSWORD')
     )
     cur = conn.cursor()
-    cur.execute('SELECT pipeline_id FROM pipelines;', )
+    cur.execute('SELECT pipeline_id FROM pipelines WHERE owner_name=%s;', (user,))
     records = cur.fetchall()
     resp = []
     for r in records:
@@ -109,7 +123,7 @@ def get_db_pipelines_id():
     return resp
 
 
-def add_pipelines(ids):
+def add_pipelines(ids, user):
     conn = psycopg2.connect(
         host=os.getenv('DB_HOST'),
         database=os.getenv('DB_NAME'),
@@ -118,7 +132,8 @@ def add_pipelines(ids):
     )
     cur = conn.cursor()
     for el in ids:
-        cur.execute('INSERT INTO pipelines (pipeline_id, name, text, number) VALUES (%s, %s, %s, %s);', (el[0], el[1], '', el[2]))
+        cur.execute('INSERT INTO pipelines (pipeline_id, name, text, number, owner_name) VALUES (%s, %s, %s, %s, %s);',
+                    (el[0], el[1], '', el[2], user,))
         conn.commit()
     conn.close()
 

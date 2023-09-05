@@ -1,51 +1,48 @@
 {% extends "base.html" %}
-{% block title %}FAQ{% endblock %}
+{% block title %}Главная{% endblock %}
 {% block head %}
     {{ block.super }}
+        <style>
+        .rounded-card {
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        .rounded-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .rounded-card .card-text {
+            color: black;
+        }
+    </style>
+
 {% endblock %}
 {% block content %}
+
     <div class="container mt-5">
-        <h1>Часто задаваемые вопросы (FAQ)</h1>
-
-        <div class="accordion" id="faqAccordion">
-            <div class="card">
-                <div class="card-header" id="question1">
-                    <h2 class="mb-0">
-                        <button style="background-color: black" class="btn btn-link" type="button" data-toggle="collapse" data-target="#answer1" aria-expanded="true" aria-controls="answer1">
-                            Вопрос 1: Как использовать наш сервис?
-                        </button>
-                    </h2>
-                </div>
-
-                <div id="answer1" class="collapse" aria-labelledby="question1" data-parent="#faqAccordion" style="background-color: black">
+        <div class="row">
+            <div class="col-md-4">
+                <a href="../manually-register/" class="card rounded-card">
+                    <img src="data:image/png;base64,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" alt="Изображение 1">
                     <div class="card-body">
-                        Ответ на вопрос 1: Чтобы использовать наш сервис, вам нужно...
+                        <p class="card-text">Ручная интеграция</p>
                     </div>
-                </div>
+                </a>
             </div>
-
-            <!-- Добавьте другие вопросы и ответы аналогичным образом -->
-
+            <div class="col-md-4">
+                <a href='' class="card rounded-card">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQGCwKCO54MRFDhKQcm6PTz5M2oIt3OQPxp_A&usqp=CAU" alt="Изображение 2">
+                    <div class="card-body">
+                        <p class="card-text">[В разработке] Интеграция в один клик</p>
+                    </div>
+                </a>
+            </div>
         </div>
-
-        <h2 class="mt-5">Задать вопрос</h2>
-        <form action="submit_question.php" method="POST">
-            <div class="form-group">
-                <label for="email">Ваш email:</label>
-                <input type="email" name="email" id="email" class="form-control" required>
-            </div>
-            <div class="form-group">
-                <label for="question">Ваш вопрос:</label>
-                <textarea name="question" id="question" class="form-control" rows="3" required></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary">Отправить вопрос</button>
-        </form>
-
-        <p class="mt-4">Если у вас возникли дополнительные вопросы, вы также можете написать нам в <a href="https://t.me/your_telegram_channel">Telegram</a>.</p>
     </div>
 
-    <!-- Подключение Bootstrap JS и jQuery (необходим для некоторых компонентов Bootstrap) -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 {% endblock %}

@@ -1,5 +1,8 @@
+import os
+
+import psycopg2
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 
 from neuro_site import db_conn
@@ -52,10 +55,34 @@ def set_text(request):
 def faq(request):
     return render(request, "faq.html")
 
+@login_required()
+def manual_amo_create(request):
+    user = str(request.user)
+    form = request.POST.dict()
+    h, m, p, a_id = form['host'], form['email'], form['password'], form['account_chat_id']
+    conn = psycopg2.connect(
+        host=os.getenv('DB_HOST'),
+        database=os.getenv('DB_NAME'),
+        user=os.getenv('DB_USER'),
+        password=os.getenv('DB_PASSWORD')
+    )
+    cur = conn.cursor()
+    print(h, m, p, a_id, user)
+    cur.execute("UPDATE request_settings SET amo_host=%s, amo_login=%s, amo_password=%s, amo_chat_id=%s WHERE owner_name=%s;", (h, m, p, a_id, user,))
+    conn.commit()
+    conn.close()
+    return redirect('settings')
+
 
 @login_required()
 def home(request):
+    print(request.user)
     return render(request, "main.html")
+
+
+@login_required()
+def manually_register(request):
+    return render(request, 'manually_register.html')
 
 
 @login_required()
@@ -68,10 +95,10 @@ def payment(request):
     return render(request, 'payment.html')
 
 
-# @login_required()
+@login_required()
 def settings(request):
-    update_pipelines()
-    pipelines = get_pipelines()
+    update_pipelines(str(request.user))
+    pipelines = get_pipelines(str(request.user))
     return render(request, 'settings.html', {
         'pipelines': pipelines
     })
