@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}FAQ{% endblock %}
+{% block head %}
+    {{ block.super }}
+    <style>
+        /* Стили для скрытия инструкции */
+        #instructions {
+            display: block;
+        }
+
+        .center-container {
+            display: flex;
+            justify-content: center;
+
+        }
+
+        .rounded-card {
+            border-radius: 20px;
+            color: black;
+        }
+
+
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="center-container">
+        <div class="card rounded-card">
+            <div class="card-body">
+                <h1 class="card-title text-center">Форма для AMO CRM</h1>
+                <form id="amoForm" action="../manual_amo_create/" method="POST">
+                      {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Почта:</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="host" class="form-label">Хост:</label>
+                        <input type="text" class="form-control" id="host" name="host" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Пароль:</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="account_chat_id" class="form-label">Account Chat ID:</label>
+                        <input type="text" class="form-control" id="account_chat_id" name="account_chat_id" required>
+                    </div>
+
+
+                    <!-- Инструкция (начально скрыта) -->
+                    <div id="instructions" class="mt-3">
+                        <p>Инструкция:</p>
+                        <p>Для нахождения Account Chat ID выполните следующие шаги:</p>
+                        <ol>
+
+                            <li><a href="https://appgpt.amocrm.ru/api/v4/account?with=amojo_id"
+                                   onMouseOver="window.status='сокращенная ссылка'; return true"
+                                   onMouseOut="window.status=''; return true">Перейдите по ссылке</a></li>
+                            <li>Возьмите параметр amojo_id (он будет выглядеть примерно так:
+                                878bb871-b4a6-4e66-9088-2837f8752be3)
+                            </li>
+                            <li>Далее перейдите в АмоМаркет и сверху справа нажмите WebHooks, там укажите адрес
+                                http://92.255.110.149:8000/{{ username }} и поставьте + на следующие события:
+
+                                 </li>(Сделка добавлена,
+                                Неразобранное добавлено,
+                                Входящее сообщение добавлено,
+                                Сделка изменена,
+                                Сделка удалена,
+                                Неразобранное удалено)
+
+                        </ol>
+                    </div>
+                    <div class="container mt-3">
+                        <button type="submit" class="btn btn-success mt-3">Отправить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Подключение Bootstrap JS (необходимо для некоторых функциональных элементов Bootstrap) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+    <script>
+        // JavaScript для отображения/скрытия инструкции
+        const toggleButton = document.getElementById("toggleInstructions");
+        const instructions = document.getElementById("instructions");
+
+        toggleButton.addEventListener("click", () => {
+            if (instructions.style.display === "none") {
+                instructions.style.display = "block";
+            } else {
+                instructions.style.display = "none";
+            }
+        });
+    </script>
+
+{% endblock %}
