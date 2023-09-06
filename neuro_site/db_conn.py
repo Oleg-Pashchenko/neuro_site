@@ -3,7 +3,7 @@ import os
 import psycopg2
 
 
-def get_token():
+def get_token(owner_name):
     conn = psycopg2.connect(
         host=os.getenv('DB_HOST'),
         database=os.getenv('DB_NAME'),
@@ -11,7 +11,7 @@ def get_token():
         password=os.getenv('DB_PASSWORD')
     )
     cur = conn.cursor()
-    cur.execute("SELECT * FROM request_settings;")
+    cur.execute("SELECT * FROM request_settings WHERE owner_name=%s;", (owner_name,))
     token = cur.fetchone()[0]
     conn.close()
     return token

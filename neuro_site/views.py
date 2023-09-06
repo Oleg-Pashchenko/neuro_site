@@ -20,13 +20,14 @@ def index(request):
     return render(request, 'index.html')
 
 
+@login_required()
 def get_text(request):
     pipeline = request.GET.dict()['pipeline']
     print(pipeline)
     info = get_text_by_pipeline(pipeline)
     text, model, fmodel, tokens, temperature, voice = info[1], info[2], info[3], info[4], info[5], info[6]
     return JsonResponse({
-        'openai': db_conn.get_token(),
+        'openai': db_conn.get_token(str(request.user)),
         'text': text,
         'model': model,
         'fmodel': fmodel,
@@ -55,6 +56,7 @@ def set_text(request):
 def faq(request):
     return render(request, "faq.html")
 
+
 @login_required()
 def manual_amo_create(request):
     user = str(request.user)
@@ -68,7 +70,9 @@ def manual_amo_create(request):
     )
     cur = conn.cursor()
     print(h, m, p, a_id, user)
-    cur.execute("UPDATE request_settings SET amo_host=%s, amo_login=%s, amo_password=%s, amo_chat_id=%s WHERE owner_name=%s;", (h, m, p, a_id, user,))
+    cur.execute(
+        "UPDATE request_settings SET amo_host=%s, amo_login=%s, amo_password=%s, amo_chat_id=%s WHERE owner_name=%s;",
+        (h, m, p, a_id, user,))
     conn.commit()
     conn.close()
     return redirect('settings')
@@ -82,7 +86,7 @@ def home(request):
 
 @login_required()
 def manually_register(request):
-    return render(request, 'manually_register.html',{
+    return render(request, 'manually_register.html', {
         'username': str(request.user)
     })
 
