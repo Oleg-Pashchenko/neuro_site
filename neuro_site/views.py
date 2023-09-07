@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 
 from neuro_site import db_conn, amo_auth
-from neuro_site.amo_auth import update_pipelines, get_text_by_pipeline, set_text_by_pipeline, get_pipelines
+from neuro_site.amo_auth import get_text_by_pipeline, set_text_by_pipeline, get_pipelines
 
 
 def change_lang(request):
@@ -35,8 +35,10 @@ def get_text(request):
         'voice': 'active' if voice == 1 else 'passive'
     })
 
+
 @login_required()
 def update_pipelines(request):
+    print('Request getted!')
     user = str(request.user)
     token, session, headers = amo_auth.get_token(user)
     response = session.get('https://appgpt.amocrm.ru/ajax/v1/pipelines/list', headers=headers).json()['response'][
@@ -57,7 +59,7 @@ def update_pipelines(request):
             to_delete.append(p)
     amo_auth.add_pipelines(to_add, user)
     amo_auth.delete_pipelines(to_delete)
-    return pipelines
+    return redirect('/settings')
 
 
 def set_text(request):
@@ -135,4 +137,33 @@ def settings(request):
 
 @login_required()
 def stats(request):
-    return render(request, 'stats.html')
+    user = str(request.user)
+    pipelines = get_pipelines(user)
+    statistics = db_conn.get_stats_db(pipelines, user)
+    print(statistics)
+    return render(request, 'stats.html', {'stats': statistics})
+
+
+@login_required()
+def get_stats(request):
+    t, p = request.GET.dict()['type'], request.GET.dict()['pipeline']
+    user = str(request.user)
+    pipelines = get_pipelines(user)
+    statistics = db_conn.get_stats_db(pipelines, user)
+
+    st = None
+    for s in statistics:
+        if s['name'] == p:
+            st = s
+
+    if t == 'messages_count':
+        dates, values = st['messages_count']['dates'], st['messages_count']['values']
+    elif t == 'chats_count':
+        dates, values = st['chats_count']['dates'], st['chats_count']['values']
+    else:
+        dates, values = st['openai_cost']['dates'], st['openai_cost']['values']
+
+    return JsonResponse({
+        'dates': dates,
+        'values': values
+    })

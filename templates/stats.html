@@ -1,70 +1,116 @@
+<!-- Ваш HTML-код, включая базовый шаблон (base.html), если есть -->
+
 {% extends "base.html" %}
 {% block title %}FAQ{% endblock %}
 {% block head %}
     {{ block.super }}
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 {% endblock %}
 {% block content %}
 
-    <div class="container mt-5">
-        <h1>Статистика</h1>
+<div class="container mt-5">
+    <h1>Статистика</h1>
 
-        <div class="row">
-            <div class="col-md-6">
-                <h2>Выберите параметры</h2>
-                <form>
-                    <div class="form-group">
-                        <label for="pipelineSelect">Выберите Pipeline:</label>
-                        <select class="form-control" id="pipelineSelect">
-                            <option> Общая </option>
-                            <option>Пайплайн 1</option>
-                            <option>Пайплайн 2</option>
-                            <option>Пайплайн 3</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="statsTypeSelect">Выберите тип статистики:</label>
-                        <select class="form-control" id="statsTypeSelect">
-                            <option>Количество обработанных сообщений</option>
-                            <option>Количество чатов</option>
-                            <option>Статистика трат и остатков на счете OPENAI</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Показать статистику</button>
-                </form>
-            </div>
-            <div class="col-md-6">
-                <h2>График статистики</h2>
-                <canvas id="statsChart"></canvas>
-            </div>
+    <div class="row">
+        <div class="col-md-6">
+            <h2>Выберите параметры</h2>
+            <form id="statsForm">
+                <div class="form-group">
+                    <label for="pipelineSelect">Выберите Pipeline:</label>
+                    <select class="form-control" id="pipelineSelect">
+                        <!-- Ваши данные из Django для заполнения списка выбора -->
+                        {% for pipeline in stats %}
+                            <option value="{{ pipeline.name }}">{{ pipeline.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="statsTypeSelect">Выберите тип статистики:</label>
+                    <select class="form-control" id="statsTypeSelect">
+                        <option value="messages_count">Количество обработанных сообщений</option>
+                        <option value="chats_count">Количество чатов</option>
+                        <option value="openai_cost">Статистика трат и остатков на счете OPENAI</option>
+                    </select>
+                </div>
+                <button type="button" class="btn btn-primary" onclick="updateChart();">Показать статистику</button>
+            </form>
+        </div>
+        <div class="col-md-6">
+            <h2>График статистики</h2>
+            <canvas id="statsChart"></canvas>
         </div>
     </div>
+</div>
 
-    <script>
-        // Пример данных для графика (замените на реальные данные)
-        const chartData = {
-            labels: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн'],
-            datasets: [{
-                label: 'Обработанные сообщения',
-                data: [500, 700, 900, 1200, 1000, 1500],
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1
-            }]
-        };
+<script>
+    // JavaScript-код для создания и обновления графика
+    var statsData = []; // Пустой массив для начальных данных
 
-        const ctx = document.getElementById('statsChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'bar', // Измените тип графика по своему усмотрению
-            data: chartData,
+    // Функция для обновления графика
+    function updateChart() {
+        var pipelineSelect = document.getElementById("pipelineSelect");
+        var selectedPipeline = pipelineSelect.value;
+        var statsTypeSelect = document.getElementById("statsTypeSelect");
+        var selectedStatsType = statsTypeSelect.value;
+
+        // Здесь нужно выполнить AJAX-запрос к серверу Django, чтобы получить данные из переменной stats
+        // Пример использования Fetch API:
+        fetch(`/api/v1/get-stats?type=${selectedStatsType}&pipeline=${selectedPipeline}`) // Замените на ваше API-подобное окончание URL
+            .then(response => response.json())
+            .then(data => {
+                statsData = data; // Обновляем данные
+                updateChartWithData(selectedPipeline, selectedStatsType); // Вызываем функцию обновления графика
+            })
+            .catch(error => {
+                console.error('Ошибка при получении данных:', error);
+            });
+    }
+
+    // Функция для обновления графика с данными
+    function updateChartWithData(selectedPipeline, selectedStatsType) {
+        // Фильтруем данные для выбранного pipeline и типа статистики
+
+
+        var dates = statsData.dates;
+        var values = statsData.values;
+
+        // Создаем и обновляем график
+        var ctx = document.getElementById("statsChart").getContext("2d");
+        var chart = new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: dates,
+                datasets: [{
+                    label: selectedStatsType,
+                    data: values,
+                    borderColor: "rgba(75, 192, 192, 1)",
+                    borderWidth: 2,
+                    fill: false
+                }]
+            },
             options: {
                 scales: {
-                    y: {
-                        beginAtZero: true
-                    }
+                    x: [{
+                        type: 'time',
+                        time: {
+                            unit: 'day'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Дата'
+                        }
+                    }],
+                    y: [{
+                        title: {
+                            display: true,
+                            text: selectedStatsType
+                        }
+                    }]
                 }
             }
         });
-    </script>
+    }
+</script>
+
 {% endblock %}
