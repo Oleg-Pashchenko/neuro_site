@@ -66,27 +66,7 @@ def get_token(owner):
     return token, session, headers
 
 
-def update_pipelines(user):
-    token, session, headers = get_token(user)
-    response = session.get('https://appgpt.amocrm.ru/ajax/v1/pipelines/list', headers=headers).json()['response'][
-        'pipelines']
-    pipelines = set()
 
-    for r in response.keys():
-        pipelines.add(int(r))
-
-    pipelines_from_db = get_db_pipelines_id(user)
-    to_delete = []
-    to_add = []
-    for p in pipelines:
-        if p not in pipelines_from_db:
-            to_add.append([p, response[str(p)]['name'], response[str(p)]['sort']])
-    for p in pipelines_from_db:
-        if p not in pipelines:
-            to_delete.append(p)
-    add_pipelines(to_add, user)
-    delete_pipelines(to_delete)
-    return pipelines
 
 
 def get_pipelines(user):
@@ -185,3 +165,20 @@ def set_text_by_pipeline(pipeline, text, tokens, temperature, vm, model, ftmodel
         (text, model, ftmodel, int(tokens), int(temperature), int(vm == 'active'), pipeline.strip(),))
     conn.commit()
     conn.close()
+
+
+def get_chats_count_by_pipeline(pipeline_id, host, mail, password):
+    url = f'https://chatgpt.amocrm.ru/ajax/leads/sum/{pipeline_id}/'
+    token, session, headers = get_token('tester')
+    resp = session.get(f'https://appgpt.amocrm.ru/leads/pipeline/{pipeline_id}/?skip_filter=Y')
+    items = resp.text.split('"leads_info_by_status":[')[1].split('{"ID":')[1::]
+    data = {'leads_by_status': 'Y', 'skip_filter': 'Y', f'filter[pipe][{pipeline_id}][]': []}
+    for i in items:
+        i = i.split(',')[0]
+        if i.isdigit():
+            data[f'filter[pipe][{pipeline_id}][]'].append(int(i.split(',')[0].strip()))
+    response = session.post(url, headers=headers, data=data).json()
+    return response['all_count']
+
+
+#get_chats_count_by_pipeline(7173574, 'https://appgpt.amocrm.ru/', 'odpash.itmo@gmail.com', 'developer2023')

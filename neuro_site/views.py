@@ -5,9 +5,8 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 
-from neuro_site import db_conn
+from neuro_site import db_conn, amo_auth
 from neuro_site.amo_auth import update_pipelines, get_text_by_pipeline, set_text_by_pipeline, get_pipelines
-from neuro_site.db_conn import get_token
 
 
 def change_lang(request):
@@ -35,6 +34,30 @@ def get_text(request):
         'temperature': temperature,
         'voice': 'active' if voice == 1 else 'passive'
     })
+
+@login_required()
+def update_pipelines(request):
+    user = str(request.user)
+    token, session, headers = amo_auth.get_token(user)
+    response = session.get('https://appgpt.amocrm.ru/ajax/v1/pipelines/list', headers=headers).json()['response'][
+        'pipelines']
+    pipelines = set()
+
+    for r in response.keys():
+        pipelines.add(int(r))
+
+    pipelines_from_db = amo_auth.get_db_pipelines_id(user)
+    to_delete = []
+    to_add = []
+    for p in pipelines:
+        if p not in pipelines_from_db:
+            to_add.append([p, response[str(p)]['name'], response[str(p)]['sort']])
+    for p in pipelines_from_db:
+        if p not in pipelines:
+            to_delete.append(p)
+    amo_auth.add_pipelines(to_add, user)
+    amo_auth.delete_pipelines(to_delete)
+    return pipelines
 
 
 def set_text(request):
@@ -103,7 +126,6 @@ def payment(request):
 
 @login_required()
 def settings(request):
-    update_pipelines(str(request.user))
     pipelines = get_pipelines(str(request.user))
     return render(request, 'settings.html', {
         'pipelines': pipelines,
