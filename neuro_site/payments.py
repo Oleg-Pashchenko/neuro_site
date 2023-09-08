@@ -20,7 +20,7 @@ def yookassa_payment(money, user, sub_type):
         },
         "confirmation": {
             "type": "redirect",
-            "return_url": f"http://127.0.0.1:8000/payment/"
+            "return_url": f"http://94.198.218.2/payment/"
         },
         "capture": True,
         "description": f"Оплата подписки пользователя {user}."
