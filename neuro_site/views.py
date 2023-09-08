@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 
-from neuro_site import db_conn, amo_auth
+from neuro_site import db_conn, amo_auth, payments
 from neuro_site.amo_auth import get_text_by_pipeline, set_text_by_pipeline, get_pipelines
 
 
@@ -123,7 +123,8 @@ def admin(request):
 
 @login_required()
 def payment(request):
-    return render(request, 'payment.html')
+    user = str(request.user)
+    return render(request, 'payment.html', payments.get_payment_data(user))
 
 
 @login_required()
@@ -167,3 +168,13 @@ def get_stats(request):
         'dates': dates,
         'values': values
     })
+
+
+@login_required()
+def payment_create(request):
+    user = str(request.user)
+    form = request.POST.dict()
+    payment_method, subscription_period = form['paymentMethod'], form['subscriptionPeriod']
+    money = int(subscription_period)
+    if payment_method == 'yookassa':
+        return redirect(payments.yookassa_payment(money, user, int(subscription_period)))

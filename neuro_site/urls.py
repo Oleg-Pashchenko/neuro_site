@@ -26,6 +26,7 @@ urlpatterns = [
     path('api/v1/settings/set-text', views.set_text, name='set_text'),
     path('api/v1/settings/update-pipelines', views.update_pipelines, name='update_pipelines'),
     path('api/v1/get-stats', views.get_stats, name='get_stats'),
+    path('api/v1/payment/create', views.payment_create, name='payment_create'),
     path('faq/', views.faq, name='faq'),
     path('home/', views.home, name='home'),
     path('manually-register/', views.manually_register, name='manually_register'),

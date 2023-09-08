@@ -6,14 +6,15 @@
 {% block content %}
     <div class="container mt-5">
         <h1>Срок подписки и тип</h1>
-        <p>Срок подписки: 30 дней</p>
+        <p>Срок подписки: {{ subscribtion.days }} дней</p>
         <p>Тип подписки: Профессиональная</p>
 
         <button id="extendSubscription" class="btn btn-primary mb-5">Продлить подписку</button>
 
         <div id="paymentWidget" style="display: none;">
             <h2>Выберите способ оплаты и период</h2>
-            <form action="submit_payment.php" method="POST">
+            <form action="/api/v1/payment/create" method="POST">
+                {% csrf_token %}
                 <div class="form-group">
                     <label for="paymentMethod">Способ оплаты:</label>
                     <select name="paymentMethod" id="paymentMethod" class="form-control">
@@ -41,27 +42,21 @@
         <table class="table" style="color: white">
             <thead>
                 <tr>
-                    <th>Транзакция</th>
+                    <th>Дата</th>
+                    <th>Способ оплаты</th>
                     <th>Сумма</th>
                     <th>Период</th>
                 </tr>
             </thead>
             <tbody>
+            {% for transaction in transactions %}
                 <tr>
-                    <td>Транзакция 1</td>
-                    <td>$50</td>
-                    <td>1 месяц</td>
+                    <th>{{ transaction.date }}</th>
+                    <th>{{ transaction.method }}</th>
+                    <th>{{ transaction.summ }}</th>
+                    <th>{{ transaction.range }}</th>
                 </tr>
-                <tr>
-                    <td>Транзакция 2</td>
-                    <td>$120</td>
-                    <td>3 месяца</td>
-                </tr>
-                <tr>
-                    <td>Транзакция 3</td>
-                    <td>$200</td>
-                    <td>6 месяцев</td>
-                </tr>
+            {% endfor %}
             </tbody>
         </table>
     </div>
