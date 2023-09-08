@@ -129,6 +129,11 @@ def payment(request):
 
 @login_required()
 def settings(request):
+    info = payments.get_payment_data(str(request.user))
+    if info['subscribtion']['days'] <= 0:
+        return render(request, 'need_payment.html')
+
+
     pipelines = get_pipelines(str(request.user))
     return render(request, 'settings.html', {
         'pipelines': pipelines,
